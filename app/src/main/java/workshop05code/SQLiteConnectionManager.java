@@ -139,7 +139,6 @@ public class SQLiteConnectionManager {
             }
         } else {
             logger.log(Level.SEVERE, "Unacceptable input ignored.");
-            System.out.println("Unacceptable input ignored.\n");
         }
         
 

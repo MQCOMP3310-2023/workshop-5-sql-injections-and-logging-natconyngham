@@ -64,12 +64,11 @@ public class SQLiteConnectionManager {
         try (Connection conn = DriverManager.getConnection(databaseURL)) {
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
-                System.out.println("The driver name is " + meta.getDriverName());
-                System.out.println("A new database has been created.");
-
+                logger.log(Level.INFO, "The driver name is " + meta.getDriverName());
+                logger.log(Level.INFO, "A new database has been created.");
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
@@ -88,7 +87,7 @@ public class SQLiteConnectionManager {
                     return true;
                 }
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.log(Level.WARNING, e.getMessage(), e);
                 return false;
             }
         }
@@ -113,7 +112,7 @@ public class SQLiteConnectionManager {
                 return true;
 
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                logger.log(Level.WARNING, e.getMessage(), e);
                 return false;
             }
         }
@@ -126,17 +125,23 @@ public class SQLiteConnectionManager {
      * @param word the word to store
      */
     public void addValidWord(int id, String word) {
+        if (word.matches("[a-z]{4}")) {
+            String sql = "INSERT INTO validWords(id,word) VALUES(?,?)";
+            logger.log(Level.INFO, word);
 
-        String sql = "INSERT INTO validWords(id,word) VALUES(?,?)";
-
-        try (Connection conn = DriverManager.getConnection(databaseURL);
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            pstmt.setString(2, word);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            try (Connection conn = DriverManager.getConnection(databaseURL);
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, id);
+                pstmt.setString(2, word);
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+            }
+        } else {
+            logger.log(Level.SEVERE, "Unacceptable input ignored.");
+            System.out.println("Unacceptable input ignored.\n");
         }
+        
 
     }
 
@@ -161,7 +166,7 @@ public class SQLiteConnectionManager {
             return false;
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage(), e);
             return false;
         }
 
